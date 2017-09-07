@@ -1,0 +1,11 @@
+[lib]
+name = "simplenetlib"
+version = "0.1.0"
+authors = ["blueburningcoder <f.karg10@gmail.com>"]
+
+[package]
+name = "simplenet"
+version = "0.1.0"
+authors = ["blueburningcoder <f.karg10@gmail.com>"]
+
+[dependencies]
