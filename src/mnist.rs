@@ -32,7 +32,20 @@ pub struct Picture {
 }
 
 
-/// when provided with two filenames of the MNIST Dataset 
+
+impl Picture {
+    /// return the tuple with the internal values, in & out of the Picture
+    pub fn get_tuple(&self) -> (Vec<u8>, Vec<u8>) {
+        let mut out = vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        out[self.value as usize] = 1;
+        let mut inn = Vec::new();
+        self.pixels.iter().map(|r| inn.extend(r)).count();
+        (inn, out)
+    }
+}
+
+
+/// when provided with two filenames of the MNIST Dataset
 /// Pictures and Labels respectively, returning a Vector of combined Pictures.
 pub fn get_pictures(nname: &str, lname: &str)
     -> Result<Vec<Picture>, io::Error> {
