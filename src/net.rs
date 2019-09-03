@@ -6,8 +6,6 @@ use self::nalgebra::*;
 
 use mnist::*;
 
-use std::ops::Mul;
-
 #[derive(Debug)]
 pub struct Network {
     num_layers: usize,
@@ -58,6 +56,7 @@ impl Network {
         a
     }
 
+/* Tried to 'translate' the python code. Type errors all the time.
 
     /// Train the network using mini-batch stochastic gradient descent.
     /// The "training_data" is a list of Pictures representing the
@@ -91,8 +90,16 @@ impl Network {
 
         for (delta_nabla_b, delta_nabla_w) in
             batch.map(|b| self.backprop(*b)) { // important!!
-            nabla_b = nabla_b.iter().map(|b| b + delta_nabla_b).collect();
-            nabla_w = nabla_w.iter().map(|w| w + delta_nabla_w).collect();
+
+            let nabla_b: Vec<Matrix<f32, Dynamic, U1, MatrixVec<f32, Dynamic, U1>>> = nabla_b
+                        .iter()
+                        .map(|b| b + &delta_nabla_b)
+                        .collect();
+
+            let nabla_w = nabla_w
+                        .iter()
+                        .map(|w| w + &delta_nabla_w)
+                        .collect();
         }
 
         self.biases = self.biases
@@ -114,15 +121,20 @@ impl Network {
     /// similiar to self.bias and self.weights.
     fn backprop(&mut self, pic: Picture) -> (DVector<f32>, DVector<f32>) {
         // TODO: write
-        let mut nabla_b = self.biases.iter()
+
+
+
+/*
+        let mut nabla_b: Vec<DMatrix<f32>> = self.biases.iter()
             .map(|b| DMatrix::zeros(b.shape().0, b.shape().1)).collect();
-        let mut nabla_w = self.weights.iter()
+        let mut nabla_w: Vec<DMatrix<f32>> = self.weights.iter()
             .map(|w| DMatrix::zeros(w.shape().0, w.shape().1)).collect();
         let mut activation: Vec<f32> =
             pic.get_tuple().0.iter().map(|e| *e as f32).collect();
         let mut activations = vec![activation];
-        let mut zs = Vec::new();
+        let mut zs: Vec<DVector<f32>> = Vec::new();
 
+/*
         for (b, w) in self.biases.iter().zip(self.weights) {
             let z = w.mul(DVector::from_iterator(activation.len(),
                                                  activation.iter())) + b;
@@ -130,16 +142,21 @@ impl Network {
             activation = sigmoid(z.iter());
             activations.push(activation);
         }
+//        */
+//        */
+
+        (DVector::from_element(2,0.0), DVector::from_element(2,0.0))
     }
+
+// */
 
 }
 
 
-
-fn randomize<T: Clone>(mut vec: Vec<T>) -> Vec<T> {
+/// randomize a given vector.
+fn randomize<T: Clone>(mut vec: Vec<T>) {
     let slice = vec.as_mut_slice();
     rand::thread_rng().shuffle(slice);
-    slice.to_vec()
 }
 
 
@@ -149,7 +166,15 @@ fn sigmoid<'a, T : Iterator<Item = &'a f32>>(i: T) -> Vec<f32>
 {
     i
 //        .map(|z| 1. as F / (1. as F + ((-(*z)).exp() as F)) )
-        .map(|z| 1. / (1. + (-z).exp() ) )
+        .map(|z| 1. / (1. + (-z).exp() ) ) // actual sigmoid function
+        .collect()
+}
+
+/// the derivation of the sigmoid function.
+fn sigmoid_prime<'a, T : Iterator<Item = &'a f32>>(i: T) -> Vec<f32> {
+    sigmoid(i)
+        .iter()
+        .map(|&e| e * (1. - e))
         .collect()
 }
 
